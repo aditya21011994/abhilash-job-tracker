@@ -1,0 +1,82 @@
+{
+  "personal_info": {
+    "name": "Abhilash B. Srivastava",
+    "email": "abhilash8021@gmail.com",
+    "phone": "+91 91045 31002",
+    "location": "Surat, Gujarat, India",
+    "linkedin": ""
+  },
+  "cfa_status": {
+    "level": "CFA Level III Cleared",
+    "details": "Cleared all exams (Charter pending)",
+    "achievements": [
+      "Passed CFA Level 2 exam with above 90th percentile score.",
+      "Passed CFA Level 1 exam with above 90th percentile score."
+    ]
+  },
+  "education": [
+    {
+      "degree": "Masters of Commerce (Statistics)",
+      "institution": "Veer Narmad South Gujarat University - Gujarat",
+      "duration": "August 2022 - April 2024",
+      "score": "CGPA - 6.83"
+    },
+    {
+      "degree": "Bachelors of Business Administration (Finance)",
+      "institution": "The Maharaja Sayajirao University of Baroda - Gujarat",
+      "duration": "July 2017 - April 2020",
+      "score": "CGPA - 7.27"
+    }
+  ],
+  "technical_skills": [
+    "Python",
+    "MySQL",
+    "Financial analysis",
+    "Quantitative analysis",
+    "Practical Macro",
+    "MS Word",
+    "Advance Excel",
+    "PowerPoint",
+    "Accounting Software - Tally"
+  ],
+  "experience": [
+    {
+      "role": "HR Internship",
+      "organization": "Vohra Engineering Works, Vadodara",
+      "duration": "April 2019 (1 month)"
+    },
+    {
+      "role": "Treasurer",
+      "organization": "MSU BBA Students' Association, Vadodara",
+      "duration": "April 2019 - September 2020"
+    },
+    {
+      "role": "Alumni Representative",
+      "organization": "MSU BBA Students' Association, Vadodara",
+      "duration": "September 2017 - April 2019"
+    }
+  ],
+  "projects": [
+    {
+      "title": "A Study On The Doughnut Economic Model And Its Application in the Indian Economy",
+      "description": "Concluded how this model can become a guiding compass in the 21st century economy, accounting for social/economic deprivation and ecological stress."
+    }
+  ],
+  "target_roles": [
+    "Financial Analyst",
+    "Quantitative Analyst",
+    "Equity Research Analyst",
+    "Fixed Income Analyst",
+    "Portfolio Management Assistant",
+    "Asset Management Analyst",
+    "Risk Analyst",
+    "Corporate Finance Analyst",
+    "Investment Analyst"
+  ],
+  "target_regions": [
+    "India",
+    "Middle East",
+    "Europe",
+    "United States"
+  ]
+}

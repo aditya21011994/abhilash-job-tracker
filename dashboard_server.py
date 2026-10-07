@@ -21,11 +21,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/jobs":
             query = urllib.parse.parse_qs(parsed.query)
             roles = query.get("roles", [])
+            is_refresh = bool(query.get("refresh", [0])[0])
             if roles and "," in roles[0]:
                 roles = roles[0].split(",")
                 
             matcher = JobMatcherAgent()
-            jobs = matcher.get_role_jobs(roles)
+            jobs = matcher.get_role_jobs(roles, refresh=is_refresh)
 
             self.send_response(200)
             self.send_header("Content-type", "application/json")
@@ -88,6 +89,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abhilash Srivastava - Career Advancement Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Custom scrollbars */
@@ -146,9 +148,17 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     <label class="text-sm font-bold text-white flex items-center">
                         <i class="fa-solid fa-sliders text-blue-400 me-2"></i> Select Core Competency Roles (Multi-Select):
                     </label>
-                    <button onclick="selectAllRoles()" class="text-xs text-blue-400 hover:text-blue-300 font-semibold underline">
-                        Select All Roles
-                    </button>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="exportJobsToExcel()" id="export-btn" class="text-xs bg-emerald-700 hover:bg-emerald-600 text-emerald-100 font-semibold px-3 py-1.5 rounded-lg transition flex items-center border border-emerald-600 shadow-sm">
+                            <i class="fa-solid fa-file-excel me-1.5 text-emerald-300"></i> Export to Excel (.xlsx)
+                        </button>
+                        <button onclick="fetchJobsForSelectedRoles(true)" id="refresh-btn" class="text-xs bg-slate-700 hover:bg-slate-600 text-blue-300 font-semibold px-3 py-1.5 rounded-lg transition flex items-center border border-slate-600">
+                            <i class="fa-solid fa-rotate me-1.5" id="refresh-icon"></i> Refresh Jobs
+                        </button>
+                        <button onclick="selectAllRoles()" class="text-xs text-blue-400 hover:text-blue-300 font-semibold underline">
+                            Select All Roles
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Multi-select Pills Container -->
@@ -324,14 +334,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             fetchJobsForSelectedRoles();
         }}
 
-        function fetchJobsForSelectedRoles() {{
+        function fetchJobsForSelectedRoles(forceRefresh = false) {{
+            const icon = document.getElementById('refresh-icon');
+            if (icon && forceRefresh) icon.classList.add('fa-spin');
+            
             const rolesQuery = selectedRoles.join(',');
-            fetch('/api/jobs?roles=' + encodeURIComponent(rolesQuery))
+            let url = '/api/jobs?roles=' + encodeURIComponent(rolesQuery);
+            if (forceRefresh) {{
+                url += '&refresh=1&t=' + Date.now();
+            }}
+
+            fetch(url)
             .then(res => res.json())
             .then(jobs => {{
                 currentJobs = jobs;
                 document.getElementById('job-count').innerText = jobs.length;
                 renderJobs(jobs);
+                if (icon) icon.classList.remove('fa-spin');
+            }})
+            .catch(err => {{
+                console.error(err);
+                if (icon) icon.classList.remove('fa-spin');
             }});
         }}
 
@@ -479,6 +502,43 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             const text = document.getElementById('cover-letter-box').innerText;
             navigator.clipboard.writeText(text);
             alert('Cover letter copied to clipboard!');
+        }}
+
+        function exportJobsToExcel() {{
+            if (!currentJobs || currentJobs.length === 0) {{
+                alert('No jobs available to export.');
+                return;
+            }}
+
+            const exportData = currentJobs.map(j => ({{
+                'Company Name': j.company || 'N/A',
+                'Role Name': j.title || 'N/A',
+                'Role Category': j.role_category || 'N/A',
+                'Portal': j.portal || 'N/A',
+                'Location': j.location || 'N/A',
+                'Short Job Description': j.description || 'N/A',
+                'Link to Apply': j.url || 'N/A'
+            }}));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+            // Auto-fit column widths
+            const colWidths = [
+                {{ wch: 25 }}, // Company Name
+                {{ wch: 35 }}, // Role Name
+                {{ wch: 25 }}, // Role Category
+                {{ wch: 18 }}, // Portal
+                {{ wch: 25 }}, // Location
+                {{ wch: 65 }}, // Short Description
+                {{ wch: 45 }}  // Link
+            ];
+            worksheet['!cols'] = colWidths;
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Job Listings");
+
+            const today = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(workbook, `Job_Listings_Export_${{today}}.xlsx`);
         }}
 
         // Initialize UI
